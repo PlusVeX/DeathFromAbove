@@ -1,0 +1,81 @@
+Connect-SPOService -Url https://TENANT-admin.sharepoint.com
+
+Get-SPOSite -Identity https://TENATN.sharepoint.com
+
+Get-SPOTenantLogEntry 
+#This cmdlet contains more than one parameter set. You may only use parameters from one parameter set and you may not combine parameters from different parameter sets. For more information about how to use parameter sets, see Cmdlet Parameter Sets. The Get-SPOTenantLogEntry cmdlet cannot retrieve all SharePoint Online errors. This cmdlet retrieves a subset of errors that happen due to external systems.
+
+
+#get site properties
+param(
+    [Parameter(Mandatory)]
+    [String]$siteUrl
+)
+Connect-SPOService ("{0}-admin.sharepoint.com" -f ($siteUrl.Substring(0, $siteUrl.IndexOf(".sharepoint.com")))) -Credential (Get-Credential)
+Get-SPOSite $siteUrl | select *
+Read-Host -Prompt "Press Enter to exit"
+
+
+
+#Get all sites by type
+param(
+    [Parameter(Mandatory)]
+    [String]$tenant
+)
+Connect-SPOService ("https://{0}-admin.sharepoint.com" -f $tenant) -Credential (Get-Credential)
+Get-SPOSite -Limit All | select Template -unique | out-host
+$siteType = Read-Host "Optional template to filter by (or just hit Enter to get all sites)"
+$sites = Get-SPOSite -Limit All
+if ($siteType -ne "")
+{
+    $sites = $sites | where { $_.Template -eq $siteType }
+}
+$sites | select Url, Template | Sort-Object Template, Url
+Read-Host -Prompt "Press Enter to exit"
+
+
+
+
+#Use this script when you want to view all property values for a specific site collection or to get a list of all the available properties for site collections.
+param(
+    [Parameter(Mandatory)]
+    [String]$siteUrl
+)
+Connect-SPOService ("{0}-admin.sharepoint.com" -f ($siteUrl.Substring(0, $siteUrl.IndexOf(".sharepoint.com")))) -Credential (Get-Credential)
+Get-SPOSite $siteUrl | select *
+Read-Host -Prompt "Press Enter to exit"
+
+
+#add yourself or some other user as the site collection administrator.
+param(
+    [Parameter(Mandatory)]
+    [String]$siteUrl,
+    [Parameter(Mandatory)]
+    [String]$loginName
+)
+Connect-SPOService ("{0}-admin.sharepoint.com" -f ($siteUrl.Substring(0, $siteUrl.IndexOf(".sharepoint.com")))) -Credential (Get-Credential)
+$supress = Set-SPOUser -Site $siteUrl -LoginName $loginName -IsSiteCollectionAdmin $true
+$obj = New-Object PSObject
+$obj | Add-Member "SiteUrl" $siteUrl
+$obj | Add-Member "LoginName" $loginName
+$obj | Add-Member "IsSiteAdmin" (Get-SPOUser -Site $siteUrl -LoginName $loginName | select IsSiteAdmin).IsSiteAdmin
+ 
+$obj | out-host
+Read-Host -Prompt "Press Enter to exit"
+
+
+#Removing a Site Colection Admin
+param(
+    [Parameter(Mandatory)]
+    [String]$siteUrl,
+    [Parameter(Mandatory)]
+    [String]$loginName
+)
+Remove-PnPSiteCollectionAdmin -Owners $loginName -Connection (Connect-PnPOnline $siteUrl -Credentials (Get-Credential) -ReturnConnection)
+$obj = New-Object PSObject
+$obj | Add-Member "SiteUrl" $siteUrl
+$obj | Add-Member "LoginName" $loginName
+$obj | Add-Member "IsSiteAdmin" (Get-SPOUser -Site $siteUrl -LoginName $loginName | select IsSiteAdmin).IsSiteAdmin
+ 
+$obj | out-host
+Read-Host -Prompt "Press Enter to exit"
