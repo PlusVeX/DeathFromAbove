@@ -1,0 +1,6 @@
+@Echo off
+start c:\work\scripts\ConversionSiteVisit.vstx
+start c:\work\scripts\SiteVisitForm.url
+start microsoft.windows.camera:
+pause
+call sendkeys.bat "Drawing1" ""
