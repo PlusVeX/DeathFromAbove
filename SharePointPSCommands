@@ -1,6 +1,9 @@
 Connect-SPOService -Url https://TENANT-admin.sharepoint.com
 
-Get-SPOSite -Identity https://TENATN.sharepoint.com
+Get-SPOSite -Identity https://TENANT.sharepoint.com
+
+Set-SPOSite -Identity https://tenantName.sharepoint.com/sites/team1 -LockState NoAccess
+#LOCKS a SharePoint site
 
 Get-SPOTenantLogEntry 
 #This cmdlet contains more than one parameter set. You may only use parameters from one parameter set and you may not combine parameters from different parameter sets. For more information about how to use parameter sets, see Cmdlet Parameter Sets. The Get-SPOTenantLogEntry cmdlet cannot retrieve all SharePoint Online errors. This cmdlet retrieves a subset of errors that happen due to external systems.
